@@ -36,7 +36,18 @@ for comment in subreddit.stream.comments():
         c.execute(select_idw_sql,(comment.id,))
         data = c.fetchall()
         if len(data) == 0:
-            comment.reply(set_reply + str(profanity.censor(comment.body)) + '\n\n' + new_line_reply + '>!' + comment.body + '!<')
+            multiline = comment.body.split('\n')
+            if len(multiline) > 1:
+                try:
+                    multiline = list(filter(('').__ne__, multiline))
+                except:
+                    pass
+                for i in range(len(multiline)-1):
+                    multiline[i] = multiline[i] + '  \n'
+                com = ''.join(multiline) 
+                comment.reply(set_reply + '\n\n' + str(profanity.censor(comment.body)) + '\n\n' + new_line_reply + '\n\n>!' + com + '!<')
+            else:
+                comment.reply(set_reply + str(profanity.censor(comment.body)) + '\n\n' + new_line_reply + '>!' + comment.body + '!<')
             c.execute(insert_sql,(comment.id, datetime.now(),1))
             comment.mod.remove(mod_note = "This is a censored comment") 
             print("Done")
